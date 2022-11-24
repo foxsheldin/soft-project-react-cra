@@ -1,7 +1,8 @@
 import React from "react";
+import { Container } from "react-bootstrap";
 
 const AlbumsPage = () => {
-  return <div>AlbumsPage</div>;
+  return <Container>AlbumsPage</Container>;
 };
 
 export default AlbumsPage;
