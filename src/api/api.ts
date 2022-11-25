@@ -4,9 +4,24 @@ const instance: AxiosInstance = axios.create({
   baseURL: "https://jsonplaceholder.typicode.com/",
 });
 
+export const albumAPI = {
+  getAlbums() {
+    return instance.get("albums");
+  },
+};
+
 export const commentAPI = {
   getCommentsByPostId(postId: number | string) {
     return instance.get(`comments?postId=${postId}`);
+  },
+};
+
+export const photoAPI = {
+  getPhotos() {
+    return instance.get(`photos`);
+  },
+  getPhotosByAlbumId(albumId: string | number) {
+    return instance.get(`photos?albumId=${albumId}`);
   },
 };
 
