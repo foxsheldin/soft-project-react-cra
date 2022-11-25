@@ -26,7 +26,11 @@ export const todoSlice = createSlice({
   initialState: todoEntityAdapter.getInitialState({
     status: LoadingStatuses.idle,
   }),
-  reducers: {},
+  reducers: {
+    updateTodo(state, action) {
+      todoEntityAdapter.upsertOne(state, action.payload);
+    },
+  },
   extraReducers: (builder) =>
     builder
       .addCase(fetchTodoListByUserId.pending, (state) => {

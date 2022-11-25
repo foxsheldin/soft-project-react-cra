@@ -1,18 +1,32 @@
 import React, { useEffect } from "react";
-import { Card, CardGroup, Container, Table } from "react-bootstrap";
+import {
+  DragDropContext,
+  DropResult,
+  ResponderProvided,
+} from "react-beautiful-dnd";
+import { CardGroup, Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
+import ColumnDragDrop from "../../components/ColumnDragDrop/ColumnDragDrop";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchTodoListByUserId } from "../../store/todo";
+import { fetchTodoListByUserId, todoSlice } from "../../store/todo";
 import {
   selectIsTodoLoading,
   selectTodoCompletedByUserId,
   selectTodoInProgressByUserId,
 } from "../../store/todo/selectors";
+import { ITodoResponseData } from "../../store/todo/types";
 import { fetchUsers } from "../../store/user";
 import {
   selectIsUserLoading,
   selectUserById,
 } from "../../store/user/selectors";
+
+/* TODO: Убрать any */
+interface IPropsOnDranEndHandler {
+  draggableId: string;
+  source: any;
+  destination: any;
+}
 
 const TodoBoardPage = () => {
   const { userId } = useParams();
@@ -45,39 +59,109 @@ const TodoBoardPage = () => {
     );
   }
 
+  const onDragEndHandler: (
+    result: DropResult,
+    provided: ResponderProvided
+  ) => void = (result, provided) => {
+    console.log("result", result);
+    console.log("provided", provided);
+
+    const { destination, draggableId, source } = result;
+
+    let currentItem: ITodoResponseData | undefined;
+    switch (source.droppableId) {
+      case "completed":
+        {
+          currentItem = todoCompleted[source.index];
+        }
+        break;
+      case "inProgress":
+        {
+          currentItem = todoInprogress[source.index];
+        }
+        break;
+      default:
+        return;
+    }
+
+    if (
+      (currentItem?.completed && destination?.droppableId === "inProgress") ||
+      (!currentItem?.completed && destination?.droppableId === "completed")
+    ) {
+      dispatch(
+        todoSlice.actions.updateTodo({
+          ...currentItem,
+          completed: !currentItem?.completed,
+        })
+      );
+    }
+
+    /* // Your version
+    // let result = helper.reorder(val.source, val.destination, taskList);
+    // setTasks(result);
+
+    /// A different way!
+
+    const [sourceGroup] = taskList.filter(
+      (column) => column.groupName === source.droppableId
+    );
+
+    // Destination might be `null`: when a task is
+    // dropped outside any drop area. In this case the
+    // task reamins in the same column so `destination` is same as `source`
+    const [destinationGroup] = destination
+      ? taskList.filter(
+          (column) => column.groupName === destination.droppableId
+        )
+      : { ...sourceGroup };
+
+    // We save the task we are moving
+    const [movingTask] = sourceGroup.tasks.filter((t) => t.id === draggableId);
+
+    const newSourceGroupTasks = sourceGroup.tasks.splice(source.index, 1);
+    const newDestinationGroupTasks = destinationGroup.tasks.splice(
+      destination.index,
+      0,
+      movingTask
+    );
+
+    // Mapping over the task lists means that you can easily
+    // add new columns
+    const newTaskList = taskList.map((column) => {
+      if (column.groupName === source.groupName) {
+        return {
+          groupName: column.groupName,
+          tasks: newSourceGroupTasks,
+        };
+      }
+      if (column.groupName === destination.groupName) {
+        return {
+          groupName: column.groupName,
+          tasks: newDestinationGroupTasks,
+        };
+      }
+      return column;
+    });
+    setTasks(newTaskList); */
+  };
+
   return (
     <Container>
       <h2>Tasks of the user "{user?.name}"</h2>
-      <CardGroup>
-        <Card>
-          <Card.Header>To-do in progress</Card.Header>
-          <Card.Body>
-            <Table hover>
-              <tbody>
-                {todoInprogress.map((todo) => (
-                  <tr key={`inProgress_${todo?.id}`}>
-                    <td data-id={todo?.id}>{todo?.title}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Header>Completed</Card.Header>
-          <Card.Body>
-            <Table hover>
-              <tbody>
-                {todoCompleted.map((todo) => (
-                  <tr key={`completed_${todo?.id}`}>
-                    <td data-id={todo?.id}>{todo?.title}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Card.Body>
-        </Card>
-      </CardGroup>
+      <DragDropContext onDragEnd={onDragEndHandler}>
+        <CardGroup>
+          <ColumnDragDrop
+            droppableId="inProgress"
+            list={todoInprogress}
+            type="task"
+          />
+          <ColumnDragDrop
+            droppableId="completed"
+            list={todoCompleted}
+            type="task"
+          />
+        </CardGroup>
+      </DragDropContext>
     </Container>
   );
 };
