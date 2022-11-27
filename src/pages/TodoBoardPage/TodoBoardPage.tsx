@@ -21,13 +21,6 @@ import {
   selectUserById,
 } from "../../store/user/selectors";
 
-/* TODO: Убрать any */
-interface IPropsOnDranEndHandler {
-  draggableId: string;
-  source: any;
-  destination: any;
-}
-
 const TodoBoardPage = () => {
   const { userId } = useParams();
   const dispatch = useAppDispatch();
@@ -63,9 +56,6 @@ const TodoBoardPage = () => {
     result: DropResult,
     provided: ResponderProvided
   ) => void = (result, provided) => {
-    console.log("result", result);
-    console.log("provided", provided);
-
     const { destination, draggableId, source } = result;
 
     let currentItem: ITodoResponseData | undefined;
@@ -95,54 +85,6 @@ const TodoBoardPage = () => {
         })
       );
     }
-
-    /* // Your version
-    // let result = helper.reorder(val.source, val.destination, taskList);
-    // setTasks(result);
-
-    /// A different way!
-
-    const [sourceGroup] = taskList.filter(
-      (column) => column.groupName === source.droppableId
-    );
-
-    // Destination might be `null`: when a task is
-    // dropped outside any drop area. In this case the
-    // task reamins in the same column so `destination` is same as `source`
-    const [destinationGroup] = destination
-      ? taskList.filter(
-          (column) => column.groupName === destination.droppableId
-        )
-      : { ...sourceGroup };
-
-    // We save the task we are moving
-    const [movingTask] = sourceGroup.tasks.filter((t) => t.id === draggableId);
-
-    const newSourceGroupTasks = sourceGroup.tasks.splice(source.index, 1);
-    const newDestinationGroupTasks = destinationGroup.tasks.splice(
-      destination.index,
-      0,
-      movingTask
-    );
-
-    // Mapping over the task lists means that you can easily
-    // add new columns
-    const newTaskList = taskList.map((column) => {
-      if (column.groupName === source.groupName) {
-        return {
-          groupName: column.groupName,
-          tasks: newSourceGroupTasks,
-        };
-      }
-      if (column.groupName === destination.groupName) {
-        return {
-          groupName: column.groupName,
-          tasks: newDestinationGroupTasks,
-        };
-      }
-      return column;
-    });
-    setTasks(newTaskList); */
   };
 
   return (
