@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import AlbumItem from "../../components/AlbumItem/AlbumItem";
+import ImageSlider from "../../components/ImageSlider/ImageSlider";
 import User from "../../components/User/User";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchPhotos } from "../../store/photo";
@@ -23,6 +24,7 @@ const AlbumPage = (props: Props) => {
   return (
     <Container>
       <h2>Album №{albumId}</h2>
+      <ImageSlider albumId={parseInt(albumId as string)} />
       <Row xs={1} sm={2} md={3} lg={4} xl={5} xxl={6} className="g-4">
         {photos?.map((photo) => (
           <AlbumItem
